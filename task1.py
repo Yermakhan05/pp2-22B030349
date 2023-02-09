@@ -1,10 +1,12 @@
-class word:
-    def getString(self):
-        self.s = input()
+class words:
+    def __init__(get):
+        get.word = ""
+    def getString(get):
+        get.word = input()
 
-    def printString(self):
-        print(self.s.upper())
+    def printString(get):
+        print(get.word.upper())
 
-ans = word()
-ans.getString()
-ans.printString()
+answer = words()
+answer.getString()
+answer.printString()
