@@ -1,1 +1,7 @@
-print(11111*1111111)
+number = int(input())
+
+if number % 2 == 0:
+    print("Number is even.")
+
+else:
+    print("Number is odd.")
