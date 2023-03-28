@@ -1,4 +1,4 @@
-s = str(input("File name: "))
+s = input("File name: ")
 
 file = open(s, "r")
 

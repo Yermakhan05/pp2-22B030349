@@ -1,1 +1,0 @@
-print("{0:20}{1:6}{0:6}".format("shjdbcis", "kdscn", "kdjncsdcs"))
