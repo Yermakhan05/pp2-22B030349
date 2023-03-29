@@ -1,4 +1,4 @@
-import pygame, os
+import pygame, os, time
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -17,7 +17,6 @@ def image_music(index):
 
 pygame.mixer.music.load('tsis7/music/{}'.format(music_name[0]))
 pygame.mixer.music.play()
-pygame.mixer.music.pause()
 
 runing = True
 pause = False
@@ -35,7 +34,7 @@ while runing:
             pygame.mixer.music.pause()
             pause = False
         else:
-            pygame.mixer.music.play()
+            pygame.mixer.music.unpause()
             pause = True
     elif pressed[pygame.K_RIGHT]:
         music_index += 1
@@ -54,4 +53,4 @@ while runing:
         pygame.mixer.music.stop()
 
     pygame.display.update()
-    clock.tick(10)
+    time.sleep(0.2)
