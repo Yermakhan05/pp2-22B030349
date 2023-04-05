@@ -6,7 +6,7 @@ class Pawn(Piece):
 	def __init__(self, pos, color, board):
 		super().__init__(pos, color, board)
 
-		img_path = 'data/imgs/style (45)/' + color[0] + 'P.png'
+		img_path = 'python-chess/data/imgs/style (45)/' + color[0] + 'P.png'
 		self.img = pygame.image.load(img_path)
 		self.img = pygame.transform.scale(self.img, (board.tile_width - 15, board.tile_height - 15))
 
