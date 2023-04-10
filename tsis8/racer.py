@@ -1,271 +1,112 @@
-import pygame, random, sys, os, time
-from pygame.locals import *
+import pygame, sys, random
 
-WINDOWWIDTH = 800
-WINDOWHEIGHT = 600
-TEXTCOLOR = (255, 255, 255)
-BACKGROUNDCOLOR = (0, 0, 0)
-FPS = 40
-BADDIEMINSIZE = 10
-BADDIEMAXSIZE = 40
-BADDIEMINSPEED = 8
-BADDIEMAXSPEED = 8
-ADDNEWBADDIERATE = 6
-PLAYERMOVERATE = 5
-count = 3
-cnt = 0
-
-
-def terminate() :
-    pygame.quit()
-    sys.exit()
-
-
-def waitForPlayerToPressKey() :
-    while True :
-        for event in pygame.event.get() :
-            if event.type == QUIT :
-                terminate()
-            if event.type == KEYDOWN :
-                if event.key == K_ESCAPE :  # escape quits
-                    terminate()
-                return
-
-
-def playerHasHitBaddie(playerRect, baddies) :
-    for b in baddies :
-        if playerRect.colliderect(b['rect']) :
-            return True
-    return False
-
-def playerHasHitCoin(playerRect, coins):
-    for c in coins:
-        if playerRect.colliderect(c['rect']):
-            coins.remove(c)
-            return True
-    return False
-
-def drawText(text, font, surface, x, y) :
-    textobj = font.render(text, 1, TEXTCOLOR)
-    textrect = textobj.get_rect()
-    textrect.topleft = (x, y)
-    surface.blit(textobj, textrect)
-
-
-# set up pygame, the window, and the mouse cursor
 pygame.init()
-mainClock = pygame.time.Clock()
-windowSurface = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-pygame.display.set_caption('car race')
-pygame.mouse.set_visible(False)
+clock = pygame.time.Clock()
 
-# fonts
-font = pygame.font.SysFont(None, 30)
+HEIGHT, WIDTH = 600, 400
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('RACER GAME')
 
-# sounds
-gameOverSound = pygame.mixer.Sound('tsis8/music/crash.wav')
-pygame.mixer.music.load('tsis8/music/car.wav')
-laugh = pygame.mixer.Sound('tsis8/music/laugh.wav')
+street = pygame.image.load('tsis8/images/Street.png')
 
-# images
-playerImage = pygame.transform.scale(pygame.image.load('tsis8/images/BLUE_car.png'), (50, 50))
-car3 = pygame.transform.scale(pygame.image.load('tsis8/images/RED_car.png'), (50, 50))
-car4 = pygame.transform.scale(pygame.image.load('tsis8/images/RED_car.png'), (50, 50))
-coin = pygame.image.load('tsis8/images/coin.jpg')
-playerRect = playerImage.get_rect()
-baddieImage = pygame.transform.scale(pygame.image.load('tsis8/images/RED_car.png'), (50, 50))
-sample = [car3, car4, baddieImage]
-wallLeft = pygame.image.load('tsis8/images/left.png')
-wallRight = pygame.image.load('tsis8/images/right.png')
+WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
 
-# "Start" screen
-drawText('Press any key to start the game.', font, windowSurface, (WINDOWWIDTH / 3) - 30, (WINDOWHEIGHT / 3))
-drawText('And Enjoy', font, windowSurface, (WINDOWWIDTH / 3), (WINDOWHEIGHT / 3) + 30)
-pygame.display.update()
-waitForPlayerToPressKey()
-zero = 0
-if not os.path.exists("data/save.dat") :
-    f = open("data/save.dat", 'w')
-    f.write(str(zero))
-    f.close()
-v = open("data/save.dat", 'r')
-topScore = int(v.readline())
-v.close()
-while (count > 0) :
-    # start of the game
-    baddies = []
-    coins = []
-    score = 0
-    playerRect.topleft = (WINDOWWIDTH / 2, WINDOWHEIGHT - 50)
-    moveLeft = moveRight = moveUp = moveDown = False
-    reverseCheat = slowCheat = False
-    baddieAddCounter = 0
-    pygame.mixer.music.play(-1, 0.0)
+def game_over(run):
+    while run:
+            SCREEN.fill((0, 0, 0))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_p:
+                        return main()
+                    elif event.key == pygame.K_q:
+                        sys.exit()
+            pygame.display.update()
 
-    while True :  # the game loop
-        score += 1  # increase score
+class Red:
+    def __init__(self):
+        self.Score = 1
+        self.image = pygame.transform.scale(
+            pygame.image.load('tsis8/images/RED_car.png'), 
+            (100, 120)
+        )
+        self.rect = self.image.get_rect()
+        self.rect.center = (random.randint(self.rect.width//2, WIDTH - self.rect.width), 0)
 
-        for event in pygame.event.get() :
+    def replay_car(self):
+        speed = self.Score + 2
+        if speed > 10:
+            speed = 10
+        self.rect.move_ip(0, speed)
+        if self.rect.top > HEIGHT:
+            self.Score += 1
+            self.rect.top = 0
+            self.rect.center = (random.randint(self.rect.width//2, WIDTH - self.rect.width), 0)
 
-            if event.type == QUIT :
-                terminate()
+    def Point(self):
+        score = pygame.font.SysFont("arial", 35).render("You Score: "+str(self.Score),True, RED)
+        SCREEN.blit(score, (10, 10))
 
-            if event.type == KEYDOWN :
-                if event.key == ord('z') :
-                    reverseCheat = True
-                if event.key == ord('x') :
-                    slowCheat = True
-                if event.key == K_LEFT or event.key == ord('a') :
-                    moveRight = False
-                    moveLeft = True
-                if event.key == K_RIGHT or event.key == ord('d') :
-                    moveLeft = False
-                    moveRight = True
-                if event.key == K_UP or event.key == ord('w') :
-                    moveDown = False
-                    moveUp = True
-                if event.key == K_DOWN or event.key == ord('s') :
-                    moveUp = False
-                    moveDown = True
+    def draw(self):
+        SCREEN.blit(self.image, self.rect)
 
-            if event.type == KEYUP :
-                if event.key == ord('z') :
-                    reverseCheat = False
-                    score = 0
-                if event.key == ord('x') :
-                    slowCheat = False
-                    score = 0
-                if event.key == K_ESCAPE :
-                    terminate()
+    def game_over(self, x_r):
+        x = self.rect[0]
+        y = self.rect[1]
+        if y >= 340:
+            if abs(x-x_r) < 50:
+                return True
+        return False
+        
 
-                if event.key == K_LEFT or event.key == ord('a') :
-                    moveLeft = False
-                if event.key == K_RIGHT or event.key == ord('d') :
-                    moveRight = False
-                if event.key == K_UP or event.key == ord('w') :
-                    moveUp = False
-                if event.key == K_DOWN or event.key == ord('s') :
-                    moveDown = False
 
-        # Add new baddies at the top of the screen
-        if not reverseCheat and not slowCheat :
-            baddieAddCounter += 1
-        if baddieAddCounter == ADDNEWBADDIERATE :
-            baddieAddCounter = 0
-            baddieSize = 30
-            newBaddie = {'rect' : pygame.Rect(random.randint(140, 485), 0 - baddieSize, 23, 47),
-                         'speed' : random.randint(BADDIEMINSPEED, BADDIEMAXSPEED),
-                         'surface' : pygame.transform.scale(random.choice(sample), (50, 50)),
-                         }
-            baddies.append(newBaddie)
-            sideLeft = {'rect' : pygame.Rect(0, 0, 126, 600),
-                        'speed' : random.randint(BADDIEMINSPEED, BADDIEMAXSPEED),
-                        'surface' : pygame.transform.scale(wallLeft, (126, 599)),
-                        }
-            baddies.append(sideLeft)
-            sideRight = {'rect' : pygame.Rect(497, 0, 303, 600),
-                         'speed' : random.randint(BADDIEMINSPEED, BADDIEMAXSPEED),
-                         'surface' : pygame.transform.scale(wallRight, (303, 599)),
-                         }
-            baddies.append(sideRight)
+class Blue:
+    def __init__(self):
+        self.x = 100
+        self.image = pygame.transform.scale(
+            pygame.image.load('tsis8/images/BLUE_car.png'), 
+            (100, 120)
+        )
+    def update(self):
+        pressed = pygame.key.get_pressed()
+        if pressed[pygame.K_RIGHT]:
+            self.x += 10
+            if self.x > 300:
+                game_over(True)
+        elif pressed[pygame.K_LEFT]:
+            self.x -= 10
+            if self.x < 0:
+                game_over(True)
+        return self.x
+        
+    def draw(self):
+        SCREEN.blit(self.image, (self.x, 460))
 
-            newCoin = {'rect': pygame.Rect(newBaddie['rect'][0] + (random.randint(140, 485)), 0 - baddieSize, 23, 47),
-                        'speed': random.randint(BADDIEMINSPEED, BADDIEMAXSPEED),
-                        'surface': pygame.transform.scale(coin, (23, 47)),
-                      }
-            coins.append(newCoin)
 
-        # Move the player around.
-        if moveLeft and playerRect.left > 0 :
-            playerRect.move_ip(-1 * PLAYERMOVERATE, 0)
-        if moveRight and playerRect.right < WINDOWWIDTH :
-            playerRect.move_ip(PLAYERMOVERATE, 0)
-        if moveUp and playerRect.top > 0 :
-            playerRect.move_ip(0, -1 * PLAYERMOVERATE)
-        if moveDown and playerRect.bottom < WINDOWHEIGHT :
-            playerRect.move_ip(0, PLAYERMOVERATE)
-
-        for b in baddies :
-            if not reverseCheat and not slowCheat :
-                b['rect'].move_ip(0, b['speed'])
-            elif reverseCheat :
-                b['rect'].move_ip(0, -5)
-            elif slowCheat :
-                b['rect'].move_ip(0, 1)
-
-        for b in baddies[:] :
-            if b['rect'].top > WINDOWHEIGHT :
-                baddies.remove(b)
-
-        for b in coins :
-            if not reverseCheat and not slowCheat :
-                b['rect'].move_ip(0, b['speed'])
-            elif reverseCheat :
-                b['rect'].move_ip(0, -5)
-            elif slowCheat :
-                b['rect'].move_ip(0, 1)
-
-        for b in coins[:] :
-            if b['rect'].top > WINDOWHEIGHT or b['rect'][0] > 485:
-                coins.remove(b)
-
-        # Draw the game world on the window.
-        windowSurface.fill(BACKGROUNDCOLOR)
-
-        # Draw the score and top score.
-        drawText('Score: %s' % (score), font, windowSurface, 128, 0)
-        drawText('Top Score: %s' % (topScore), font, windowSurface, 128, 20)
-        drawText('Rest Life: %s' % (count), font, windowSurface, 128, 40)
-        drawText('Coins: %s' % (cnt), font, windowSurface, 410, 0)
-
-        windowSurface.blit(playerImage, playerRect)
-
-        for b in baddies :
-            windowSurface.blit(b['surface'], b['rect'])
-
-        for b in coins :
-            windowSurface.blit(b['surface'], b['rect'])
-
+def main():
+    runing = True
+    dx = 0
+    blue_car = Blue()
+    red_car = Red()
+    while runing:
+        SCREEN.blit(street, (0, 0))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()   
+        x = blue_car.update()
+        blue_car.draw()
+        red_car.draw()
+        red_car.Point()
+        red_car.replay_car()
+        if red_car.game_over(x): game_over(True)
         pygame.display.update()
+        clock.tick(60)
+        
 
-        # Check if any of the car have hit the player.
-        if playerHasHitBaddie(playerRect, baddies) :
-            cnt = 0
-            #Change the speed to what it used to be
-            FPS = 40
-            if score > topScore :
-                g = open("data/save.dat", 'w')
-                g.write(str(score))
-                g.write(str(cnt))
-                g.close()
-                topScore = score
-            break
-
-        cnt2 = 0
-        if playerHasHitCoin(playerRect, coins):
-            #weight of coin
-            ans = random.randint(1, 10)
-            cnt += ans
-            cnt2 += ans
-            #increase the speed of car
-            if(cnt2 > 5):
-                FPS += 15
-                cnt2 = 0
-
-
-        mainClock.tick(FPS)
-
-    # "Game Over" screen.
-    pygame.mixer.music.stop()
-    count = count - 1
-    gameOverSound.play()
-    time.sleep(1)
-    if (count == 0) :
-        laugh.play()
-        drawText('Game over', font, windowSurface, (WINDOWWIDTH / 3), (WINDOWHEIGHT / 3))
-        drawText('Press any key to play again.', font, windowSurface, (WINDOWWIDTH / 3) - 80, (WINDOWHEIGHT / 3) + 30)
-        pygame.display.update()
-        time.sleep(2)
-        waitForPlayerToPressKey()
-        count = 3
-        gameOverSound.stop()
+if __name__ == '__main__':
+    main()
+pygame.quit() 

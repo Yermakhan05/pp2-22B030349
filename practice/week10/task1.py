@@ -201,7 +201,7 @@ def main():
             if event.type == pygame.QUIT:
                 runing = False
         pygame.display.update()
-        clock.tick(80)
+        clock.tick(10)
 
 if __name__ == '__main__':
     main() 
