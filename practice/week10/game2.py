@@ -28,25 +28,32 @@ font = pygame.font.SysFont("Verdana", 60)
 font_small = pygame.font.SysFont("Verdana", 20)
 game_over = font.render("Game Over", True, BLACK)
 
-background = pygame.image.load("AnimatedStreet.png")
+background = pygame.image.load("tsis9/images/AnimatedStreet.png")
 
 #Create a white screen 
 DISPLAYSURF = pygame.display.set_mode((400,600))
 DISPLAYSURF.fill(WHITE)
 pygame.display.set_caption("Game")
 
+class Coin:
+    def __init__(self):
+        self.image = pygame.transform.scale(pygame.image.load('tsis9/images/coin.png'), (50, 50))
+        self.x = random.randint(0, SCREEN_WIDTH-50)
+        self.y = random.randint(50, SCREEN_HEIGHT-150)
+    def draw(self):
+        DISPLAYSURF.blit(self.image, (self.x, self.y))
 
 class Enemy(pygame.sprite.Sprite):
       def __init__(self):
         super().__init__() 
-        self.image = pygame.image.load("Enemy.png")
+        self.image = pygame.image.load("tsis9/images/Enemy.png")
         self.rect = self.image.get_rect()
         self.rect.center = (random.randint(40,SCREEN_WIDTH-40), 0)
 
       def move(self):
         global SCORE
         self.rect.move_ip(0,SPEED)
-        if (self.rect.bottom > 600):
+        if self.rect.bottom > 600:
             SCORE += 1
             self.rect.top = 0
             self.rect.center = (random.randint(40, SCREEN_WIDTH - 40), 0)
@@ -55,7 +62,7 @@ class Enemy(pygame.sprite.Sprite):
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__() 
-        self.image = pygame.image.load("Player.png")
+        self.image = pygame.image.load("tsis9/images/Player.png")
         self.rect = self.image.get_rect()
         self.rect.center = (160, 520)
        
@@ -73,6 +80,7 @@ class Player(pygame.sprite.Sprite):
 #Setting up Sprites        
 P1 = Player()
 E1 = Enemy()
+C = Coin()
 
 #Creating Sprites Groups
 enemies = pygame.sprite.Group()
@@ -100,6 +108,7 @@ while True:
     DISPLAYSURF.blit(background, (0,0))
     scores = font_small.render(str(SCORE), True, BLACK)
     DISPLAYSURF.blit(scores, (10,10))
+    C.draw()
 
     #Moves and Re-draws all Sprites
     for entity in all_sprites:
@@ -109,7 +118,7 @@ while True:
 
     #To be run if collision occurs between Player and Enemy
     if pygame.sprite.spritecollideany(P1, enemies):
-          pygame.mixer.Sound('crash.wav').play()
+          pygame.mixer.Sound('tsis9/music/crash.wav').play()
           time.sleep(1)
                    
           DISPLAYSURF.fill(RED)
