@@ -74,6 +74,7 @@ class Red:
             self.Score += 1
             self.rect.top = 0
             self.rect.center = (random.randint(self.rect.width//2, WIDTH - self.rect.width), 0)
+        return speed
 
     def Point(self):
         score = pygame.font.SysFont("arial", 35).render("You Score: "+str(self.Score),True, RED)
@@ -124,12 +125,16 @@ def main():
     runing = True
     speed = 5
     coin = Coin()
+    Y = 0
     blue_car = Blue()
     Event = pygame.USEREVENT + 1
     tt = pygame.time.set_timer(Event, 1000)
     red_car = Red()
     while runing:
-        SCREEN.blit(street, (0, 0))
+        SCREEN.blit(street, (0, Y))
+        SCREEN.blit(street, (0, Y-600))
+        Y += speed
+        if Y >= 600: Y = 0
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()  
@@ -144,7 +149,7 @@ def main():
             speed += Score
         coin.draw()
         red_car.Point()
-        red_car.replay_car(speed)
+        speed = red_car.replay_car(speed)
         if red_car.game_over(x, y):
             pygame.mixer.stop() 
             pygame.mixer.Sound('tsis9/music/crash.wav').play()
