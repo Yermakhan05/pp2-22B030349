@@ -97,7 +97,7 @@ class Snake:
         ]
         self.Sc = Sc
         self.level = Lv
-        self.p = Sc
+        self.p = Sc%20
     def draw(self):
         cordinate = self.POINT[0]
         pygame.draw.rect(
