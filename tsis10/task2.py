@@ -18,6 +18,12 @@ BLACK = (0, 0, 0)
 screen = pygame.display.set_mode((HEIGHT, WIDTH))
 pygame.display.set_caption('Snake')
 clock = pygame.time.Clock()
+
+def table():
+    cur.execute('''CREATE TABLE IF NOT EXISTS public.user_name(
+                    nickname character varying(60) COLLATE pg_catalog."default",
+                    level integer,
+                    score integer)''')
 def Replay(Score, Level):
     run = True
     pygame.mixer.Sound('practice/week11/GAME2/game_over.mp3').play()
@@ -280,6 +286,7 @@ def main():
         Score, Level = snake.score('Level: '+str(Level)+"   Score: "+str(Score)+'   Second: '+str(5-sec))
         pygame.display.update()
         clock.tick(10+(Level/10)%5)
+# table()
 welcome()
 if __name__ == '__main__':
     main()
